@@ -1,0 +1,75 @@
+package com.egatetutor.backend.service;
+
+
+
+import com.egatetutor.backend.enumType.CoursesStatus;
+import com.egatetutor.backend.model.*;
+import com.egatetutor.backend.model.responsemodel.CourseDescStatusResponse;
+import com.egatetutor.backend.repository.*;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+
+import java.util.*;
+
+@Service
+public class CoursesDescServiceImpl implements CoursesDescriptionService {
+
+	@Autowired
+	UserRepository userRepository;
+	@Autowired
+	private CoursesOfferedRepository coursesOfferedRepository;
+	@Autowired
+	private CoursesDescriptionRepository coursesDescriptionRepository;
+
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
+
+	@Autowired
+	private ReportOverallRepository reportOverallRepository;
+
+	@Override
+	public List<CourseDescStatusResponse>  getCourses(Long examId, String email)  throws Exception {
+	   UserInfo userInfo = userRepository.findByEmailId(email);
+		if(userInfo == null) {
+			throw new Exception("User not found");
+		}
+	   List<Long> examIdList =  subscriptionRepository.findByUserId(userInfo.getId());  //User subscription exam list
+		if(examIdList == null){ throw new Exception("User doesn't subscribe to any package");}
+		Set<Long> examIdSet = new HashSet<>(examIdList);
+		List<CoursesDescription> testList = coursesDescriptionRepository.findCoursesDescriptionByExamId(examId);
+    	List<CourseDescStatusResponse> testResponseArray = new ArrayList<>();
+
+		for(CoursesDescription coursesDescription: testList) {
+			ModelMapper modelMapper = new ModelMapper();
+			modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+			CourseDescStatusResponse testResponseModel = modelMapper.map(coursesDescription, CourseDescStatusResponse.class);
+			if(!examIdSet.contains(examId)){
+				testResponseModel.setStatus(CoursesStatus.INACTIVE.name());
+			}else{
+				ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userInfo.getId(), coursesDescription.getId());
+				String status = (reportOverall != null)? reportOverall.getStatus(): CoursesStatus.START.name();
+				testResponseModel.setStatus(status);
+			}
+			testResponseArray.add(testResponseModel);
+		}
+		return testResponseArray;
+	}
+
+	@Override
+	public void createTest(CoursesDescription coursesDescription) throws Exception {
+		 Optional<CoursesDescription> course = coursesDescriptionRepository.findCoursesDescriptionByCourseId(coursesDescription.getCourseId());
+		 if(course.isPresent()) throw new Exception("CourseDescription/Test with courseId is already Exist");
+		coursesDescriptionRepository.save(coursesDescription);
+	}
+
+	@Override
+	public List<CourseDescStatusResponse> getCoursesByExamCode(String examCode, String email) throws Exception {
+		CoursesOffered coursesOffered = coursesOfferedRepository.findByExamCode(examCode);
+		return getCourses(coursesOffered.getId(), email);
+	}
+
+
+}
