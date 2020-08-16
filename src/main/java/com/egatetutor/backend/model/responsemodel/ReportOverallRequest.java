@@ -9,12 +9,6 @@ public class ReportOverallRequest {
     @Column(name = "total_time")
     private String totalTime;
 
-    @Column(name = "score")
-    private Double score;
-
-    @Column(name = "user_rank")
-    private int userRank;
-
     private String status;
 
     private Long userId;
@@ -26,22 +20,6 @@ public class ReportOverallRequest {
 
     public void setTotalTime(String totalTime) {
         this.totalTime = totalTime;
-    }
-
-    public Double getScore() {
-        return score;
-    }
-
-    public void setScore(Double score) {
-        this.score = score;
-    }
-
-    public int getUserRank() {
-        return userRank;
-    }
-
-    public void setUserRank(int userRank) {
-        this.userRank = userRank;
     }
 
     public String getStatus() {

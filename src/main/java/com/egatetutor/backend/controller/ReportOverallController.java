@@ -1,23 +1,21 @@
 package com.egatetutor.backend.controller;
 
 
-import com.egatetutor.backend.model.CoursesDescription;
-import com.egatetutor.backend.model.QuestionLayout;
-import com.egatetutor.backend.model.ReportOverall;
-import com.egatetutor.backend.model.UserInfo;
+import com.egatetutor.backend.enumType.CoursesStatus;
+import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.compositekey.ReportOverallPK;
 import com.egatetutor.backend.model.responsemodel.CourseDescStatusResponse;
 import com.egatetutor.backend.model.responsemodel.ReportOverallRequest;
-import com.egatetutor.backend.repository.CoursesDescriptionRepository;
-import com.egatetutor.backend.repository.QuestionLayoutRepository;
-import com.egatetutor.backend.repository.ReportOverallRepository;
-import com.egatetutor.backend.repository.UserRepository;
+import com.egatetutor.backend.repository.*;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,6 +25,11 @@ public class ReportOverallController {
     @Autowired
     ReportOverallRepository reportOverallRepository;
 
+    @Autowired
+    ReportDetailRepository reportDetailRepository;
+
+    @Autowired
+    QuestionLayoutRepository questionLayoutRepository;
 
     @Autowired
     UserRepository userRepository;
@@ -34,20 +37,34 @@ public class ReportOverallController {
     @Autowired
     CoursesDescriptionRepository coursesDescriptionRepository;
 
-    @GetMapping("/getReportByUserId")
+    @GetMapping("/getOverallReportByUserId")
     public ResponseEntity<ReportOverall> getReportByUserId(@RequestParam("user_id") Long userId,
-                                                           @RequestParam("course_id")Long courseId) {
+                                                           @RequestParam("course_id")Long courseId)
+    throws Exception
+    {
+
+        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(
+               userId, courseId);
+        if(reportOverall == null){
+            throw new Exception("Composite Id of userId:"+ userId +"& courseId:"+courseId+" doesn't exist");
+        }
+        if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETE.name())){
+            throw new Exception("Exam is not complete");
+        }
+        else{
+/*
+TODO: TEST ANALYTICS
+ */
+
+        }
+
        return ResponseEntity.status(HttpStatus.OK).body(reportOverallRepository.findReportByCompositeId(userId,  courseId)) ;
     }
 
     @PostMapping("/saveOverallReport")
-    public ResponseEntity<ReportOverall> saveOverallReport (ReportOverallRequest reportOverallRequest)
+    public ResponseEntity<String> saveOverallReport (@Valid @RequestBody ReportOverallRequest reportOverallRequest)
     throws Exception
     {
-
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ReportOverall reportOverall = modelMapper.map(reportOverallRequest, ReportOverall.class);
         Optional<UserInfo> user =  userRepository.findById(reportOverallRequest.getUserId());
         Optional<CoursesDescription> coursesDescription = coursesDescriptionRepository.findById(reportOverallRequest.getCourseId());
         if(!user.isPresent()) {
@@ -56,9 +73,17 @@ public class ReportOverallController {
         if(!coursesDescription.isPresent()){
             throw new Exception("Course/Test doesn't exist");
         }
-        reportOverall.setCourseId(coursesDescription.get());
-        reportOverall.setUserId(user.get());
-        reportOverall.setReportOverallPK(new ReportOverallPK(reportOverallRequest.getCourseId(), reportOverallRequest.getUserId()));
-        return ResponseEntity.status(HttpStatus.OK).body(reportOverallRepository.save(reportOverall));
+        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(
+                reportOverallRequest.getUserId(), reportOverallRequest.getCourseId());
+      if(reportOverall == null){
+          reportOverall = new ReportOverall();
+          reportOverall.setCourseId(coursesDescription.get());
+          reportOverall.setUserId(user.get());
+          reportOverall.setReportOverallPK(new ReportOverallPK(reportOverallRequest.getCourseId(), reportOverallRequest.getUserId()));
+      }
+        reportOverall.setStatus(reportOverallRequest.getStatus());
+        reportOverall.setTotalTime(reportOverallRequest.getTotalTime());
+        reportOverallRepository.save(reportOverall);
+        return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }
