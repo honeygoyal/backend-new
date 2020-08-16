@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,8 +46,11 @@ public class ReportDetailController {
     {
         List<ReportDetail> reportDetailList =  reportDetailRepository.findReportDetailByCompositeId(userId,courseId);
         List<QuestionLayout> questionLayoutList = questionLayoutRepository.findQuestionsById(courseId);
+        List<QuestionAnalysis> questionAnalyses = new ArrayList<>();
+
+
 /*
-TODO
+TODO Question Analysis
  */
 
         return null;
