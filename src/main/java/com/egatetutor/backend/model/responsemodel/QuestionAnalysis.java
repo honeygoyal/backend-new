@@ -10,6 +10,9 @@ public class QuestionAnalysis {
     private int inCorrectAttempt;
     private int correctAttempt;
     private String difficultyLevel;
+    private String yourAttempt;
+    private double markSecured;
+    private boolean isCorrect;
 
     public String getYourTime() {
         return yourTime;
@@ -81,5 +84,29 @@ public class QuestionAnalysis {
 
     public void setQuestionId(long questionId) {
         this.questionId = questionId;
+    }
+
+    public String getYourAttempt() {
+        return yourAttempt;
+    }
+
+    public void setYourAttempt(String yourAttempt) {
+        this.yourAttempt = yourAttempt;
+    }
+
+    public double getMarkSecured() {
+        return markSecured;
+    }
+
+    public void setMarkSecured(double markSecured) {
+        this.markSecured = markSecured;
+    }
+
+    public boolean isCorrect() {
+        return isCorrect;
+    }
+
+    public void setCorrect(boolean correct) {
+        isCorrect = correct;
     }
 }

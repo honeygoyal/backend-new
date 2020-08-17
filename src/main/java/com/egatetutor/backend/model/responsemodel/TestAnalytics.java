@@ -6,6 +6,7 @@ public class TestAnalytics {
     private int unAttempt;
     private double MarksSecured;
     private double totalMarks;
+    private int Rank;
 
     public int getCorrect() {
         return correct;
@@ -45,5 +46,13 @@ public class TestAnalytics {
 
     public void setTotalMarks(double totalMarks) {
         this.totalMarks = totalMarks;
+    }
+
+    public int getRank() {
+        return Rank;
+    }
+
+    public void setRank(int rank) {
+        Rank = rank;
     }
 }

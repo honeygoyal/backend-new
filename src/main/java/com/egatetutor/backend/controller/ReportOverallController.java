@@ -6,12 +6,16 @@ import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.compositekey.ReportOverallPK;
 import com.egatetutor.backend.model.responsemodel.CourseDescStatusResponse;
 import com.egatetutor.backend.model.responsemodel.ReportOverallRequest;
+import com.egatetutor.backend.model.responsemodel.TestAnalytics;
 import com.egatetutor.backend.repository.*;
+import com.egatetutor.backend.service.ReportGeneratorService;
+import org.aspectj.weaver.ast.Test;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,11 +30,7 @@ public class ReportOverallController {
     ReportOverallRepository reportOverallRepository;
 
     @Autowired
-    ReportDetailRepository reportDetailRepository;
-
-    @Autowired
-    QuestionLayoutRepository questionLayoutRepository;
-
+    ReportGeneratorService reportGeneratorService;
     @Autowired
     UserRepository userRepository;
 
@@ -38,7 +38,7 @@ public class ReportOverallController {
     CoursesDescriptionRepository coursesDescriptionRepository;
 
     @GetMapping("/getOverallReportByUserId")
-    public ResponseEntity<ReportOverall> getReportByUserId(@RequestParam("user_id") Long userId,
+    public ResponseEntity<TestAnalytics> getReportByUserId(@RequestParam("user_id") Long userId,
                                                            @RequestParam("course_id")Long courseId)
     throws Exception
     {
@@ -51,14 +51,8 @@ public class ReportOverallController {
         if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETE.name())){
             throw new Exception("Exam is not complete");
         }
-        else{
-/*
-TODO: TEST ANALYTICS
- */
-
-        }
-
-       return ResponseEntity.status(HttpStatus.OK).body(reportOverallRepository.findReportByCompositeId(userId,  courseId)) ;
+       TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
+        return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
     }
 
     @PostMapping("/saveOverallReport")
