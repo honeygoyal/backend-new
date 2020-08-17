@@ -1,7 +1,7 @@
 package com.egatetutor.backend.enumType;
 
 public enum QuestionStatus {
-    ANS, UNANS, MARK_ANS, MARK_NOANS;
+    ANS, NO_ANS, MARK_ANS, MARK_NOANS;
 
     @Override
     public String toString() {
