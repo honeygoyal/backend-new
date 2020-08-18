@@ -31,26 +31,27 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     @Override
     public List<QuestionAnalysis> getQuestionAnalysis(Long userId, Long courseId) throws Exception {
-        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, courseId);
+        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, courseId); /*User Report detail list for all question of courseId*/
         ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
         if (reportOverall == null || !reportOverall.getStatus().equals(CoursesStatus.COMPLETE.name()))
             throw new Exception("Exam is not finished yet");
         if (reportDetailList == null) {
             throw new Exception("QuestWise report is not yet generated");
         }
-        List<QuestionLayout> questionLayoutList = questionLayoutRepository.findQuestionsById(courseId);
+        List<QuestionLayout> questionLayoutList = questionLayoutRepository.findQuestionsById(courseId);        /*Question List of Course Id */
         List<QuestionAnalysis> questionAnalysesList = new ArrayList<>();
         /*TODO: incorrect Attempt is not showing correctly, marks calculated! */
         for (QuestionLayout question : questionLayoutList) {
             QuestionAnalysis questionAnalysis = new QuestionAnalysis();
             questionAnalysis.setQuestionId(question.getId());
             questionAnalysis.setDifficultyLevel(question.getQuestionDifficulty());
-            Optional<ReportDetail> reportDetail = reportDetailList.stream().
+            Optional<ReportDetail> reportDetail = reportDetailList.stream().                               /* finding question specific report for userId*/
                     filter(p -> p.getQuestion_id().equals(question)).
                     findFirst();
             if (!reportDetail.isPresent()) {
                 questionAnalysis.setYourTime("0");
                 questionAnalysis.setYourAttempt(QuestionStatus.NO_ANS.name());
+                questionAnalysis.setCorrect(false);
                 questionAnalysis.setMarkSecured(0d);
             } else {
                 questionAnalysis.setYourTime(reportDetail.get().getTimeTaken());
@@ -74,7 +75,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             ).collect(Collectors.toList());
             questionAnalysis.setCorrectAttempt(correctSolutionReport.size());
             int unAttemptQ = (int) questWiseAllUserReport.stream().filter(
-                    p -> p.getAnswerSubmitted() == null
+                    p -> (p.getAnswerSubmitted() == null || p.getAnswerSubmitted().isEmpty())
             ).count();
             questionAnalysis.setUnAttempt(unAttemptQ);
 
