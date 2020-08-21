@@ -52,6 +52,10 @@ public class ReportOverallController {
             throw new Exception("Exam is not complete");
         }
        TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
+        /*Set the User Rank*/
+//        List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
+//        Optional<ReportOverall> reportForRank = reportOverallList.stream().filter(p-> (p.getUserId().getId() == userId)).findFirst();
+//        reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
         return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
     }
 

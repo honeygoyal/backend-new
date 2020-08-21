@@ -55,7 +55,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 questionAnalysis.setMarkSecured(0d);
             } else {
                 questionAnalysis.setYourTime(reportDetail.get().getTimeTaken());
-                if (reportDetail.get().getQuestionStatus().equals(QuestionStatus.NO_ANS.name())) {
+                if (reportDetail.get().getQuestionStatus().equals(QuestionStatus.NO_ANS.name()) ||
+                        reportDetail.get().getQuestionStatus().equals(QuestionStatus.MARK_NOANS.name())) {
                     questionAnalysis.setMarkSecured(0d);
                     questionAnalysis.setCorrect(false);
                     questionAnalysis.setYourAttempt(QuestionStatus.NO_ANS.name());
@@ -85,9 +86,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
             ReportDetail minTimeTakenReport = correctSolutionReport.stream().min(Comparator.comparing(ReportDetail::getTimeTaken))
                     .orElse(null);
             questionAnalysis.setTopperTime(minTimeTakenReport == null ? null : minTimeTakenReport.getTimeTaken());
-           OptionalDouble averageTimeOptional = questWiseAllUserReport.stream().mapToDouble(p -> Double.parseDouble(p.getTimeTaken())).average();
-            if(averageTimeOptional.isPresent()) {  double averageTime = averageTimeOptional.getAsDouble();
-            questionAnalysis.setAverageTime(averageTime+"");}
+            OptionalDouble averageTimeOptional = questWiseAllUserReport.stream().mapToDouble(p -> Double.parseDouble(p.getTimeTaken())).average();
+            if (averageTimeOptional.isPresent()) {
+                double averageTime = averageTimeOptional.getAsDouble();
+                questionAnalysis.setAverageTime(averageTime + "");
+            }
             questionAnalysesList.add(questionAnalysis);
         }
         return questionAnalysesList;
@@ -106,8 +109,9 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         double markSecured = questionAnalysisList.stream().mapToDouble(QuestionAnalysis::getMarkSecured)
                 .sum();
         testAnalytics.setMarksSecured(markSecured);
-
-
+        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
+        reportOverall.setScore(markSecured);
+        reportOverallRepository.save(reportOverall);
         return testAnalytics;
     }
 
