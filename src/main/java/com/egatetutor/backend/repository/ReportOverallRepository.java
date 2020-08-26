@@ -18,4 +18,5 @@ public interface ReportOverallRepository extends CrudRepository<ReportOverall, L
             "FROM report_overall R WHERE R.STATUS = 'COMPLETE' AND R.course_id =:course_id", nativeQuery = true)
     List<ReportOverall> findRankByCourseId(@Param("course_id") Long course_id);
 
+
 }

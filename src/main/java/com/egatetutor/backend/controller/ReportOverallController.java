@@ -54,24 +54,18 @@ public class ReportOverallController {
         }
        TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
         /*Set the User Rank*/
-        double[] score = {Integer.MIN_VALUE};
-        int[] no = {0};
-        int[] rank = {0};
-        List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
-         reportOverallList.stream()
-                .sorted((a, b) -> (int) (b.getScore() - a.getScore()))
-                .peek(p -> {
-                    ++no[0];
-                    if (score[0] != p.getScore()) rank[0] = no[0];
-                    p.setUserRank(rank[0]);
-                    score[0] = p.getScore();
-                }).collect(Collectors.toList());
+        List<ReportOverall> reportOverallList = reportGeneratorService.getRankWiseReport(courseId);
         Optional<ReportOverall> reportForRank = reportOverallList.stream().
                 filter(p-> (p.getUserId().getId() == userId)).findFirst();
       reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
         return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
     }
 
+    @GetMapping("/getTopRank")
+    public ResponseEntity<List<ReportOverall>> getTopRank(@RequestParam("course_id")Long courseId)
+    {
+        return ResponseEntity.status(HttpStatus.OK).body(reportGeneratorService.getRankWiseReport(courseId));
+    }
     @PostMapping("/saveOverallReport")
     public ResponseEntity<String> saveOverallReport (@Valid @RequestBody ReportOverallRequest reportOverallRequest)
     throws Exception

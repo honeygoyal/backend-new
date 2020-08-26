@@ -115,24 +115,41 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         return testAnalytics;
     }
 
+    @Override
+    public List<ReportOverall> getRankWiseReport(Long courseId) {
+        double[] score = {Integer.MIN_VALUE};
+        int[] no = {0};
+        int[] rank = {0};
+        List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
+         reportOverallList.stream()
+                .sorted((a, b) -> (int) (b.getScore() - a.getScore()))
+                .peek(p -> {
+                    ++no[0];
+                    if (score[0] != p.getScore()) rank[0] = no[0];
+                    p.setUserRank(rank[0]);
+                    score[0] = p.getScore();
+                }).collect(Collectors.toList());
+        return reportOverallList;
+    }
+
     private boolean checkCorrectAns(String qType, String answer, String answerSubmitted) {
         if (answerSubmitted == null || answerSubmitted.isEmpty()) return false;
         QuestionType questionType = QuestionType.find(qType);
-        boolean isCorrect = false;
+        boolean isCorrect;
         switch (questionType) {
             case MCQ:
                 isCorrect = answer.equalsIgnoreCase(answerSubmitted);
                 break;
             case MSQ:
-                String a1[] = answer.split("[,]", 0);
-                String a2[] = answerSubmitted.split("[,]", 0);
+                String[] a1 = answer.split("[,]", 0);
+                String[] a2 = answerSubmitted.split("[,]", 0);
                 Arrays.sort(a1);
                 Arrays.sort(a2);
                 isCorrect = Arrays.equals(a1, a2);
                 break;
             case NAT:
                 answer = answer.replaceAll("[\\[\\](){}]", "");
-                String ans[] = answer.split("[,]", 0);
+                String[] ans = answer.split("[,]", 0);
                 double lowerLimit = Double.parseDouble(ans[0]);
                 double upperLimit = Double.parseDouble(ans[1]);
                 double ansSub = Double.parseDouble(answerSubmitted);
