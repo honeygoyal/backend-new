@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reportOverall")
@@ -53,9 +54,21 @@ public class ReportOverallController {
         }
        TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
         /*Set the User Rank*/
-//        List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
-//        Optional<ReportOverall> reportForRank = reportOverallList.stream().filter(p-> (p.getUserId().getId() == userId)).findFirst();
-//        reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
+        double[] score = {Integer.MIN_VALUE};
+        int[] no = {0};
+        int[] rank = {0};
+        List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
+         reportOverallList.stream()
+                .sorted((a, b) -> (int) (b.getScore() - a.getScore()))
+                .peek(p -> {
+                    ++no[0];
+                    if (score[0] != p.getScore()) rank[0] = no[0];
+                    p.setUserRank(rank[0]);
+                    score[0] = p.getScore();
+                }).collect(Collectors.toList());
+        Optional<ReportOverall> reportForRank = reportOverallList.stream().
+                filter(p-> (p.getUserId().getId() == userId)).findFirst();
+      reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
         return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
     }
 
