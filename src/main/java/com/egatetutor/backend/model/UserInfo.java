@@ -1,6 +1,8 @@
 package com.egatetutor.backend.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "user_info", indexes = @Index(name = "email_id", columnList = "email_id", unique = true))
@@ -32,6 +34,20 @@ public class UserInfo {
 
     @Column(name = "govt_id",  nullable = false)
     private String govtId;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "subscription_details",
+            joinColumns = { @JoinColumn(name = "user_id") },
+            inverseJoinColumns = { @JoinColumn(name = "course_offered_id") })
+    private List<CoursesOffered> coursesOffered =new ArrayList<>();
+
+    public List<CoursesOffered> getCoursesOffered() {
+        return coursesOffered;
+    }
+
+    public void setCoursesOffered(List<CoursesOffered> coursesOffered) {
+        this.coursesOffered = coursesOffered;
+    }
 
     public long getId() {
         return id;
