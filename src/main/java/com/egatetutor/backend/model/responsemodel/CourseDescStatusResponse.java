@@ -6,6 +6,9 @@ import java.sql.Date;
 
 public class CourseDescStatusResponse implements Serializable {
 
+    @Column(name = "id", nullable=false)
+    private Long id;
+
     @Column(name = "courseId", nullable=false)
     private String courseId;
 
@@ -34,6 +37,14 @@ public class CourseDescStatusResponse implements Serializable {
 
     public String getCourseId() {
         return courseId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public void setCourseId(String courseId) {

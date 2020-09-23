@@ -2,7 +2,6 @@ package com.egatetutor.backend.controller;
 
 
 import com.egatetutor.backend.enumType.CoursesStatus;
-import com.egatetutor.backend.enumType.QuestionType;
 import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.compositekey.ReportDetailPK;
 import com.egatetutor.backend.model.compositekey.ReportOverallPK;
@@ -18,7 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/reportDetail")
@@ -73,7 +71,7 @@ public class ReportDetailController {
             reportOverall = new ReportOverall();
             reportOverall.setUserId(user.get());
             reportOverall.setCourseId(coursesDescription.get());
-            reportOverall.setStatus(CoursesStatus.PROGRESS.name());
+            reportOverall.setStatus(CoursesStatus.PENDING.name());
             reportOverall.setReportOverallPK(new ReportOverallPK(coursesDescription.get().getId(), user.get().getId()));
             reportOverallRepository.save(reportOverall);
         }

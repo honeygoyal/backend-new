@@ -43,7 +43,7 @@ public class ReportOverallController {
         if(reportOverall == null){
             throw new Exception("Composite Id of userId:"+ userId +"& courseId:"+courseId+" doesn't exist");
         }
-        if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETE.name())){
+        if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETED.name())){
             throw new Exception("Exam is not complete");
         }
        TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
