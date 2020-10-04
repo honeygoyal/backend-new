@@ -12,4 +12,5 @@ public interface CoursesDescriptionService {
 	void createTest(CoursesDescription coursesDescription) throws Exception;
 
 	List<CourseDescStatusResponse> getCoursesByExamCode(String examCode, String email) throws Exception;
+	List<String> getCourseIdListForAdmin(String examCode) throws Exception;
 }

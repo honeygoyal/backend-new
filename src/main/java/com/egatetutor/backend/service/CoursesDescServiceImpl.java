@@ -7,12 +7,15 @@ import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.responsemodel.CourseDescStatusResponse;
 import com.egatetutor.backend.repository.*;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CoursesDescServiceImpl implements CoursesDescriptionService {
@@ -69,6 +72,14 @@ public class CoursesDescServiceImpl implements CoursesDescriptionService {
 	public List<CourseDescStatusResponse> getCoursesByExamCode(String examCode, String email) throws Exception {
 		CoursesOffered coursesOffered = coursesOfferedRepository.findByExamCode(examCode);
 		return getCourses(coursesOffered.getId(), email);
+	}
+
+	@Override
+	public List<String> getCourseIdListForAdmin(String examCode) throws Exception {
+		CoursesOffered coursesOffered = coursesOfferedRepository.findByExamCode(examCode);
+		List<CoursesDescription> coursesDescriptionList = coursesDescriptionRepository.findCoursesDescriptionByExamId(coursesOffered.getId());
+		List<String> courseIdList = coursesDescriptionList.stream().map(CoursesDescription::getCourseId).collect(Collectors.toList());
+		return courseIdList;
 	}
 
 

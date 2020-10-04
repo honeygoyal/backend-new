@@ -44,6 +44,13 @@ public class CoursesDescriptionController {
 		List<CourseDescStatusResponse> coursesDescriptions = coursesDescriptionService.getCoursesByExamCode(examCode,email);
 		return ResponseEntity.status(HttpStatus.OK).body(coursesDescriptions);
 	}
+
+
+	@GetMapping("/getCourseIdListForAdmin")
+	public ResponseEntity<List<String>> getCourseIdListForAdmin(@RequestParam("exam_code") String examCode)throws Exception  {
+		List<String> courseIdList = coursesDescriptionService.getCourseIdListForAdmin(examCode);
+		return ResponseEntity.status(HttpStatus.OK).body(courseIdList);
+	}
 	@PostMapping("/createTest")
 	public ResponseEntity<String> createTest(@Valid @RequestBody CoursesDescription coursesDescription) throws Exception
 	{
