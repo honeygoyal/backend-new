@@ -45,15 +45,9 @@ public class CoursesDescriptionController {
 		return ResponseEntity.status(HttpStatus.OK).body(coursesDescriptions);
 	}
 	@PostMapping("/createTest")
-	public ResponseEntity<String> createTest(@Valid @RequestBody CourseDescriptionResponse coursesDescriptionResponse, String examCode) throws Exception
+	public ResponseEntity<String> createTest(@Valid @RequestBody CoursesDescription coursesDescription) throws Exception
 	{
 		try {
-			ModelMapper modelMapper = new ModelMapper();
-			modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-			CoursesDescription coursesDescription = modelMapper.map(coursesDescriptionResponse, CoursesDescription.class);
-			CoursesOffered coursesOffered = coursesOfferedRepository.findByExamCode(examCode);
-			if(coursesOffered == null) throw new Exception("Exam Code is not valid");
-			coursesDescription.setExamId(coursesOffered);
 			coursesDescriptionService.createTest(coursesDescription);
 		} catch (Exception ex) {
 			return  new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

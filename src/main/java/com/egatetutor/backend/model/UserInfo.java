@@ -32,7 +32,7 @@ public class UserInfo {
 
     private String password;
 
-    @Column(name = "govt_id",  nullable = false)
+    @Column(name = "govt_id")
     private String govtId;
 
     @ManyToMany(cascade = CascadeType.ALL)
