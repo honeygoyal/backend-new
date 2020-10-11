@@ -14,6 +14,10 @@ import com.egatetutor.backend.repository.ReportOverallRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +47,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         /*TODO: incorrect Attempt is not showing correctly, marks calculated! */
         for (QuestionLayout question : questionLayoutList) {
             QuestionAnalysis questionAnalysis = new QuestionAnalysis();
-            questionAnalysis.setQuestionId(question.getId());
+            questionAnalysis.setQuestion(calculatePath(question));
             questionAnalysis.setDifficultyLevel(question.getQuestionDifficulty());
             Optional<ReportDetail> reportDetail = reportDetailList.stream().                               /* finding question specific report for userId*/
                     filter(p -> p.getQuestion_id().equals(question)).
@@ -159,5 +163,17 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 throw new IllegalStateException("Unexpected value: " + questionType);
         }
         return isCorrect;
+    }
+
+    public QuestionLayout calculatePath(QuestionLayout questionLayout) throws IOException {
+        Path quePath = Paths.get(questionLayout.getQuestion() + ".png");
+        Path solPath = Paths.get(questionLayout.getSolution() + ".png");
+        byte[] imageque = Files.readAllBytes(quePath);
+        byte[] imagesol = Files.readAllBytes(solPath);
+        String encodedQuestion = Base64.getEncoder().encodeToString(imageque);
+        String encodedSolution = Base64.getEncoder().encodeToString(imagesol);
+        questionLayout.setQuestion(encodedQuestion);
+        questionLayout.setSolution(encodedSolution);
+        return  questionLayout;
     }
 }

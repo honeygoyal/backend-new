@@ -1,7 +1,9 @@
 package com.egatetutor.backend.model.responsemodel;
 
+import com.egatetutor.backend.model.QuestionLayout;
+
 public class QuestionAnalysis {
-    private long questionId;
+    private QuestionLayout question;
     private String yourTime;
     private String averageTime;
     private String topperTime;
@@ -78,12 +80,12 @@ public class QuestionAnalysis {
         this.difficultyLevel = difficultyLevel;
     }
 
-    public long getQuestionId() {
-        return questionId;
+    public QuestionLayout getQuestion() {
+        return question;
     }
 
-    public void setQuestionId(long questionId) {
-        this.questionId = questionId;
+    public void setQuestion(QuestionLayout question) {
+        this.question = question;
     }
 
     public String getYourAttempt() {
