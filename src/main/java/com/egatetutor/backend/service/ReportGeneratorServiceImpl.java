@@ -114,8 +114,11 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 .sum();
         testAnalytics.setMarksSecured(markSecured);
         ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
-        reportOverall.setScore(markSecured);
-        reportOverallRepository.save(reportOverall);
+//
+        if(reportOverall!=null){
+            reportOverallRepository.udateReportOverall(markSecured,userId,courseId);
+        }
+
         return testAnalytics;
     }
 
