@@ -2,8 +2,10 @@ package com.egatetutor.backend.controller;
 
 
 import com.egatetutor.backend.enumType.CoursesStatus;
+import com.egatetutor.backend.enumType.QuestionStatus;
 import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.compositekey.ReportOverallPK;
+import com.egatetutor.backend.model.responsemodel.QuestionAnalysis;
 import com.egatetutor.backend.model.responsemodel.ReportOverallRequest;
 import com.egatetutor.backend.model.responsemodel.TestAnalytics;
 import com.egatetutor.backend.repository.*;
@@ -40,23 +42,16 @@ public class ReportOverallController {
 
         ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(
                userId, courseId);
-        if(reportOverall == null){
-            throw new Exception("Composite Id of userId:"+ userId +"& courseId:"+courseId+" doesn't exist");
-        }
-        if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETED.name())){
-            throw new Exception("Exam is not complete");
-        }
        TestAnalytics testAnalytics = reportGeneratorService.getTestAnalytics(userId, courseId);
         Optional<CoursesDescription> coursesDescription = coursesDescriptionRepository.findById(reportOverall.getCourseId().getId());
         if(!coursesDescription.isPresent()){
             throw new Exception("Course/Test doesn't exist");
         }
         testAnalytics.setTotalMarks(coursesDescription.get().getTotalMarks());
-        /*Set the User Rank*/
         List<ReportOverall> reportOverallList = reportGeneratorService.getRankWiseReport(courseId);
         Optional<ReportOverall> reportForRank = reportOverallList.stream().
                 filter(p-> (p.getUserId().getId() == userId)).findFirst();
-      reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
+        reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
         return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
     }
 
@@ -79,12 +74,23 @@ public class ReportOverallController {
         }
         ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(
                 reportOverallRequest.getUserId(), reportOverallRequest.getCourseId());
+        List<QuestionAnalysis> questionAnalysisList = reportGeneratorService.getQuestionAnalysis(user.get().getId(),
+                coursesDescription.get().getId());
+        double markSecured = questionAnalysisList.stream().mapToDouble(QuestionAnalysis::getMarkSecured)
+                .sum();
+        int correctAns = (int) questionAnalysisList.stream().filter(QuestionAnalysis::isCorrect).count();
+        int unAttempt = (int) questionAnalysisList.stream().filter(p -> p.getYourAttempt().equals(QuestionStatus.NO_ANS.name())).count();
+        int totalQ = questionAnalysisList.size();
       if(reportOverall == null){
           reportOverall = new ReportOverall();
           reportOverall.setCourseId(coursesDescription.get());
           reportOverall.setUserId(user.get());
           reportOverall.setReportOverallPK(new ReportOverallPK(reportOverallRequest.getCourseId(), reportOverallRequest.getUserId()));
       }
+        reportOverall.setScore(markSecured);
+        reportOverall.setCorrect(correctAns);
+        reportOverall.setInCorrect(totalQ - (correctAns + unAttempt));
+        reportOverall.setUnAttempt(unAttempt);
         reportOverall.setStatus(reportOverallRequest.getStatus());
         reportOverall.setTotalTime(reportOverallRequest.getTotalTime());
         reportOverallRepository.save(reportOverall);

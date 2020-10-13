@@ -6,7 +6,16 @@ public class TestAnalytics {
     private int unAttempt;
     private double MarksSecured;
     private double totalMarks;
+    private String totalTimeTaken;
     private int Rank;
+
+    public String getTotalTimeTaken() {
+        return totalTimeTaken;
+    }
+
+    public void setTotalTimeTaken(String totalTimeTaken) {
+        this.totalTimeTaken = totalTimeTaken;
+    }
 
     public int getCorrect() {
         return correct;

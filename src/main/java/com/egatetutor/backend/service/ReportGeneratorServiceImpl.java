@@ -13,7 +13,6 @@ import com.egatetutor.backend.repository.ReportDetailRepository;
 import com.egatetutor.backend.repository.ReportOverallRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,24 +100,20 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     @Override
-    public TestAnalytics getTestAnalytics(Long userId, Long courseId) throws Exception {
-        List<QuestionAnalysis> questionAnalysisList = getQuestionAnalysis(userId, courseId);
-        TestAnalytics testAnalytics = new TestAnalytics();
-        int correctAns = (int) questionAnalysisList.stream().filter(QuestionAnalysis::isCorrect).count();
-        int unAttempt = (int) questionAnalysisList.stream().filter(p -> p.getYourAttempt().equals(QuestionStatus.NO_ANS.name())).count();
-        int totalQ = questionAnalysisList.size();
-        testAnalytics.setCorrect(correctAns);
-        testAnalytics.setInCorrect(totalQ - (correctAns + unAttempt));
-        testAnalytics.setUnAttempt(unAttempt);
-        double markSecured = questionAnalysisList.stream().mapToDouble(QuestionAnalysis::getMarkSecured)
-                .sum();
-        testAnalytics.setMarksSecured(markSecured);
-        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
-//
-        if(reportOverall!=null){
-            reportOverallRepository.udateReportOverall(markSecured,userId,courseId);
+    public TestAnalytics getTestAnalytics(Long userId, Long courseId)  throws Exception{
+       ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
+        if(reportOverall == null){
+            throw new Exception("Composite Id of userId:"+ userId +"& courseId:"+courseId+" doesn't exist");
         }
-
+        if(!reportOverall.getStatus().equals(CoursesStatus.COMPLETED.name())){
+            throw new Exception("Exam is not complete");
+        }
+        TestAnalytics testAnalytics = new TestAnalytics();
+        testAnalytics.setCorrect(reportOverall.getCorrect());
+        testAnalytics.setInCorrect(reportOverall.getInCorrect());
+        testAnalytics.setUnAttempt(reportOverall.getUnAttempt());
+        testAnalytics.setMarksSecured(reportOverall.getScore());
+        testAnalytics.setTotalTimeTaken(reportOverall.getTotalTime());
         return testAnalytics;
     }
 
@@ -128,7 +123,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         int[] no = {0};
         int[] rank = {0};
         List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
-         reportOverallList.stream()
+         reportOverallList = reportOverallList.stream()
                 .sorted((a, b) -> (int) (b.getScore() - a.getScore()))
                 .peek(p -> {
                     ++no[0];

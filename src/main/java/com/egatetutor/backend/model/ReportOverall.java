@@ -34,9 +34,10 @@ public class ReportOverall implements Serializable {
 
     @Column(name = "user_rank")
     private int userRank;
-
     private String status;
-
+    private int correct;
+    private int inCorrect;
+    private int unAttempt;
 
     public CoursesDescription getCourseId() {
         return courseId;
@@ -48,6 +49,30 @@ public class ReportOverall implements Serializable {
 
     public UserInfo getUserId() {
         return userId;
+    }
+
+    public int getCorrect() {
+        return correct;
+    }
+
+    public void setCorrect(int correct) {
+        this.correct = correct;
+    }
+
+    public int getInCorrect() {
+        return inCorrect;
+    }
+
+    public void setInCorrect(int inCorrect) {
+        this.inCorrect = inCorrect;
+    }
+
+    public int getUnAttempt() {
+        return unAttempt;
+    }
+
+    public void setUnAttempt(int unAttempt) {
+        this.unAttempt = unAttempt;
     }
 
     public void setUserId(UserInfo userId) {
