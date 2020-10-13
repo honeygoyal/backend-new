@@ -35,15 +35,12 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     @Override
     public List<QuestionAnalysis> getQuestionAnalysis(Long userId, Long courseId) throws Exception {
         List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, courseId); /*User Report detail list for all question of courseId*/
-        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
-        if (reportOverall == null || !reportOverall.getStatus().equals(CoursesStatus.COMPLETED.name()))
-            throw new Exception("Exam is not finished yet");
         if (reportDetailList == null) {
             throw new Exception("QuestWise report is not yet generated");
         }
         List<QuestionLayout> questionLayoutList = questionLayoutRepository.findQuestionsById(courseId);        /*Question List of Course Id */
         List<QuestionAnalysis> questionAnalysesList = new ArrayList<>();
-        /*TODO: incorrect Attempt is not showing correctly, marks calculated! */
+
         for (QuestionLayout question : questionLayoutList) {
             QuestionAnalysis questionAnalysis = new QuestionAnalysis();
             questionAnalysis.setQuestion(calculatePath(question));

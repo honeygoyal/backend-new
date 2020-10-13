@@ -74,6 +74,14 @@ public class ReportOverallController {
         }
         ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(
                 reportOverallRequest.getUserId(), reportOverallRequest.getCourseId());
+        if(reportOverall == null){
+            reportOverall = new ReportOverall();
+            reportOverall.setCourseId(coursesDescription.get());
+            reportOverall.setUserId(user.get());
+            reportOverall.setReportOverallPK(new ReportOverallPK(reportOverallRequest.getCourseId(), reportOverallRequest.getUserId()));
+        }
+        reportOverall.setStatus(reportOverallRequest.getStatus());
+        reportOverall.setTotalTime(reportOverallRequest.getTotalTime());
         List<QuestionAnalysis> questionAnalysisList = reportGeneratorService.getQuestionAnalysis(user.get().getId(),
                 coursesDescription.get().getId());
         double markSecured = questionAnalysisList.stream().mapToDouble(QuestionAnalysis::getMarkSecured)
@@ -81,19 +89,11 @@ public class ReportOverallController {
         int correctAns = (int) questionAnalysisList.stream().filter(QuestionAnalysis::isCorrect).count();
         int unAttempt = (int) questionAnalysisList.stream().filter(p -> p.getYourAttempt().equals(QuestionStatus.NO_ANS.name())).count();
         int totalQ = questionAnalysisList.size();
-      if(reportOverall == null){
-          reportOverall = new ReportOverall();
-          reportOverall.setCourseId(coursesDescription.get());
-          reportOverall.setUserId(user.get());
-          reportOverall.setReportOverallPK(new ReportOverallPK(reportOverallRequest.getCourseId(), reportOverallRequest.getUserId()));
-      }
         reportOverall.setScore(markSecured);
         reportOverall.setCorrect(correctAns);
         reportOverall.setInCorrect(totalQ - (correctAns + unAttempt));
         reportOverall.setUnAttempt(unAttempt);
-        reportOverall.setStatus(reportOverallRequest.getStatus());
-        reportOverall.setTotalTime(reportOverallRequest.getTotalTime());
-        reportOverallRepository.save(reportOverall);
+        reportOverallRepository.save(reportOverall) ;
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

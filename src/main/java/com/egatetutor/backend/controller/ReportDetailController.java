@@ -43,7 +43,9 @@ public class ReportDetailController {
     @GetMapping("/getQuestionAnalysis")
     public List<QuestionAnalysis> getQuestionAnalysis(@RequestParam("user_id") Long userId,
                                                       @RequestParam("course_id") Long courseId) throws Exception {
-
+        ReportOverall reportOverall = reportOverallRepository.findReportByCompositeId(userId, courseId);
+        if (reportOverall == null || !reportOverall.getStatus().equals(CoursesStatus.COMPLETED.name()))
+            throw new Exception("Exam is not finished yet");
         return reportGeneratorService.getQuestionAnalysis(userId, courseId);
     }
 
