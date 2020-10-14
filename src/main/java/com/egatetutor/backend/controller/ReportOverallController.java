@@ -11,6 +11,7 @@ import com.egatetutor.backend.model.responsemodel.TestAnalytics;
 import com.egatetutor.backend.repository.*;
 import com.egatetutor.backend.service.ReportGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -93,7 +94,11 @@ public class ReportOverallController {
         reportOverall.setCorrect(correctAns);
         reportOverall.setInCorrect(totalQ - (correctAns + unAttempt));
         reportOverall.setUnAttempt(unAttempt);
-        reportOverallRepository.save(reportOverall) ;
+        try{
+        reportOverallRepository.save(reportOverall);}
+        catch (DataIntegrityViolationException exp){
+            reportOverallRepository.save(reportOverall);
+        }
         return ResponseEntity.status(HttpStatus.OK).body("");
     }
 }

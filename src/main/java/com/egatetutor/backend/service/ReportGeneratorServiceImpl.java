@@ -40,7 +40,6 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
         }
         List<QuestionLayout> questionLayoutList = questionLayoutRepository.findQuestionsById(courseId);        /*Question List of Course Id */
         List<QuestionAnalysis> questionAnalysesList = new ArrayList<>();
-
         for (QuestionLayout question : questionLayoutList) {
             QuestionAnalysis questionAnalysis = new QuestionAnalysis();
             questionAnalysis.setQuestion(calculatePath(question));
@@ -140,6 +139,8 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 isCorrect = answer.equalsIgnoreCase(answerSubmitted);
                 break;
             case MSQ:
+                answer = answer.replaceAll("[\\[\\](){}]", "");
+                answerSubmitted = answerSubmitted.replaceAll("[\\[\\](){}]", "");
                 String[] a1 = answer.split("[,]", 0);
                 String[] a2 = answerSubmitted.split("[,]", 0);
                 Arrays.sort(a1);

@@ -17,12 +17,12 @@ public class ReportOverall implements Serializable {
     private ReportOverallPK reportOverallPK;
 
     @MapsId("course_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinColumn(name = "course_id", referencedColumnName = "id", nullable = false)
     private CoursesDescription courseId;
 
     @MapsId("user_id")
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserInfo userId;
 
