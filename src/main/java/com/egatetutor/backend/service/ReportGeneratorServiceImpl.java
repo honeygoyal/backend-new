@@ -7,6 +7,7 @@ import com.egatetutor.backend.model.QuestionLayout;
 import com.egatetutor.backend.model.ReportDetail;
 import com.egatetutor.backend.model.ReportOverall;
 import com.egatetutor.backend.model.responsemodel.QuestionAnalysis;
+import com.egatetutor.backend.model.responsemodel.UserRank;
 import com.egatetutor.backend.model.responsemodel.TestAnalytics;
 import com.egatetutor.backend.repository.QuestionLayoutRepository;
 import com.egatetutor.backend.repository.ReportDetailRepository;
@@ -114,20 +115,24 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
     }
 
     @Override
-    public List<ReportOverall> getRankWiseReport(Long courseId) {
+    public List<UserRank> getRankWiseReport(Long courseId) {
         double[] score = {Integer.MIN_VALUE};
-        int[] no = {0};
-        int[] rank = {0};
+        long[] no = {0L};
+        long[] rank = {0L};
         List<ReportOverall> reportOverallList = reportOverallRepository.findRankByCourseId(courseId);
-         reportOverallList = reportOverallList.stream()
+        List<UserRank> userRankList = reportOverallList.stream()
                 .sorted((a, b) -> (int) (b.getScore() - a.getScore()))
-                .peek(p -> {
+                .map(p -> {
                     ++no[0];
                     if (score[0] != p.getScore()) rank[0] = no[0];
                     p.setUserRank(rank[0]);
                     score[0] = p.getScore();
+                    return new UserRank(p.getUserId().getName(),p.getUserId().getId(), p.getCourseId().getTitle(),
+                            p.getCourseId().getTotalMarks(),
+                            p.getScore(), p.getTotalTime(), p.getCourseId().getDuration(), p.getUserRank());
                 }).collect(Collectors.toList());
-        return reportOverallList;
+
+        return userRankList;
     }
 
     private boolean checkCorrectAns(String qType, String answer, String answerSubmitted) {

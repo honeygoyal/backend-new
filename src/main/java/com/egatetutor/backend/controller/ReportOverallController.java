@@ -1,11 +1,11 @@
 package com.egatetutor.backend.controller;
 
 
-import com.egatetutor.backend.enumType.CoursesStatus;
 import com.egatetutor.backend.enumType.QuestionStatus;
 import com.egatetutor.backend.model.*;
 import com.egatetutor.backend.model.compositekey.ReportOverallPK;
 import com.egatetutor.backend.model.responsemodel.QuestionAnalysis;
+import com.egatetutor.backend.model.responsemodel.UserRank;
 import com.egatetutor.backend.model.responsemodel.ReportOverallRequest;
 import com.egatetutor.backend.model.responsemodel.TestAnalytics;
 import com.egatetutor.backend.repository.*;
@@ -49,15 +49,15 @@ public class ReportOverallController {
             throw new Exception("Course/Test doesn't exist");
         }
         testAnalytics.setTotalMarks(coursesDescription.get().getTotalMarks());
-        List<ReportOverall> reportOverallList = reportGeneratorService.getRankWiseReport(courseId);
-        Optional<ReportOverall> reportForRank = reportOverallList.stream().
-                filter(p-> (p.getUserId().getId() == userId)).findFirst();
-        reportForRank.ifPresent(overall -> testAnalytics.setRank(overall.getUserRank()));
-        return ResponseEntity.status(HttpStatus.OK).body(testAnalytics) ;
+        List<UserRank> reportOverallList = reportGeneratorService.getRankWiseReport(courseId);
+        Optional<UserRank> reportForRank = reportOverallList.stream().
+                filter(p-> (p.getUserId().equals(userId))).findFirst();
+        reportForRank.ifPresent(userRank -> testAnalytics.setRank(userRank.getRank()));
+        return ResponseEntity.status(HttpStatus.OK).body(testAnalytics);
     }
 
     @GetMapping("/getTopRank")
-    public ResponseEntity<List<ReportOverall>> getTopRank(@RequestParam("course_id")Long courseId)
+    public ResponseEntity<List<UserRank>> getTopRank(@RequestParam("course_id")Long courseId)
     {
         return ResponseEntity.status(HttpStatus.OK).body(reportGeneratorService.getRankWiseReport(courseId));
     }

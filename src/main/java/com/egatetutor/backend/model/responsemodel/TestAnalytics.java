@@ -7,7 +7,7 @@ public class TestAnalytics {
     private double MarksSecured;
     private double totalMarks;
     private String totalTimeTaken;
-    private int Rank;
+    private Long Rank;
 
     public String getTotalTimeTaken() {
         return totalTimeTaken;
@@ -57,11 +57,11 @@ public class TestAnalytics {
         this.totalMarks = totalMarks;
     }
 
-    public int getRank() {
+    public Long getRank() {
         return Rank;
     }
 
-    public void setRank(int rank) {
+    public void setRank(Long rank) {
         Rank = rank;
     }
 }

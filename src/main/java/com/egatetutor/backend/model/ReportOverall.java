@@ -33,7 +33,7 @@ public class ReportOverall implements Serializable {
     private Double score;
 
     @Column(name = "user_rank")
-    private int userRank;
+    private Long userRank;
     private String status;
     private int correct;
     private int inCorrect;
@@ -95,11 +95,11 @@ public class ReportOverall implements Serializable {
         this.score = score;
     }
 
-    public int getUserRank() {
+    public Long getUserRank() {
         return userRank;
     }
 
-    public void setUserRank(int userRank) {
+    public void setUserRank(Long userRank) {
         this.userRank = userRank;
     }
 
