@@ -199,12 +199,8 @@ public class QuestionLayoutController {
 
 
             for(QuestionLayout q: questionsList){
-                //q.set(new QuestionCompositeKey(q.getSection(), q.getQuestionLabel(), q.getTest_id().getTest_id()));
                 questionRepository.save(q);
             }
-           // questionRepository.saveAll( (Iterable<? extends Question>) questionsList);
-
-            //questionRepository.insertQuestions(questionsList);
 
         } catch (IOException | InvalidFormatException e) {
             e.printStackTrace();

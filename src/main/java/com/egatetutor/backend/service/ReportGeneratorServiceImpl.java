@@ -53,6 +53,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                 questionAnalysis.setYourAttempt(QuestionStatus.NO_ANS.name());
                 questionAnalysis.setCorrect(false);
                 questionAnalysis.setMarkSecured(0d);
+                questionAnalysis.setYourAnswer("");
             } else {
                 questionAnalysis.setYourTime(reportDetail.get().getTimeTaken());
                 if (reportDetail.get().getQuestionStatus().equals(QuestionStatus.NO_ANS.name()) ||
@@ -60,12 +61,14 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
                     questionAnalysis.setMarkSecured(0d);
                     questionAnalysis.setCorrect(false);
                     questionAnalysis.setYourAttempt(QuestionStatus.NO_ANS.name());
+                    questionAnalysis.setYourAnswer("");
                 } else {
                     boolean isCorrect = checkCorrectAns(question.getQuestionType(), question.getAnswer(), reportDetail.get().getAnswerSubmitted());
                     double markSecured = (isCorrect) ? question.getMarks() : question.getNegativeMarks();
                     questionAnalysis.setMarkSecured(markSecured);
                     questionAnalysis.setCorrect(isCorrect);
                     questionAnalysis.setYourAttempt(reportDetail.get().getQuestionStatus());
+                    questionAnalysis.setYourAnswer(reportDetail.get().getAnswerSubmitted());
                 }
             }
             List<ReportDetail> questWiseAllUserReport = reportDetailRepository.findAllReportDetailByQuestion(question.getId(), courseId);

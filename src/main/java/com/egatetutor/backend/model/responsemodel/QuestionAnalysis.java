@@ -15,6 +15,7 @@ public class QuestionAnalysis {
     private String yourAttempt;
     private double markSecured;
     private boolean isCorrect;
+    private String yourAnswer;
 
     public String getYourTime() {
         return yourTime;
@@ -110,5 +111,13 @@ public class QuestionAnalysis {
 
     public void setCorrect(boolean correct) {
         isCorrect = correct;
+    }
+
+    public String getYourAnswer() {
+        return yourAnswer;
+    }
+
+    public void setYourAnswer(String yourAnswer) {
+        this.yourAnswer = yourAnswer;
     }
 }
