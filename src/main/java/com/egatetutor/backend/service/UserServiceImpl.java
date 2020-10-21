@@ -3,6 +3,7 @@ package com.egatetutor.backend.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Message;
@@ -18,6 +19,7 @@ import com.egatetutor.backend.model.UserInfo;
 import com.egatetutor.backend.repository.UserRepository;
 import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -115,6 +117,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		String password = randomAlphaNumeric(8);
 		System.out.println(password);
 		userDetails.setPassword(bCryptPasswordEncoder.encode(password));
+		userDetails.setIsAdmin(false);
 		UserInfo existingUser = userRepository.findByEmailId(userDetails.getEmailId());
 		if (existingUser != null) {
 			throw new Exception("User already exists with this email");
@@ -129,7 +132,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 		UserInfo userEntity = userRepository.findByEmailId(username);
 		if (userEntity == null)
 			throw new UsernameNotFoundException(username);
-		ArrayList grantedAuth = new ArrayList();
+		List<SimpleGrantedAuthority> grantedAuth = new ArrayList();
+		if(userEntity.getIsAdmin()){
+			grantedAuth.add(new SimpleGrantedAuthority("ADMIN"));
+		}
+		if(!userEntity.getIsAdmin()){
+			grantedAuth.add(new SimpleGrantedAuthority("USER"));
+		}
 		return new User(userEntity.getEmailId(), userEntity.getPassword(),
 				true, true, true, true, grantedAuth);
 	}

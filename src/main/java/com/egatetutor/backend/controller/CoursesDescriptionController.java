@@ -59,7 +59,7 @@ public class CoursesDescriptionController {
 		} catch (Exception ex) {
 			return  new ResponseEntity<String>( ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		return  new ResponseEntity<String>("DONE", HttpStatus.OK);
+		return  new ResponseEntity<String>("{}", HttpStatus.OK);
 	}
 
 

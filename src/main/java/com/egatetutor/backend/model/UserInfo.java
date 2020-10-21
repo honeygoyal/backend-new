@@ -32,7 +32,7 @@ public class UserInfo {
 
     private String password;
 
-    @Column(name = "govt_id")
+    @Column(name = "govt_id",nullable = true)
     private String govtId;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -40,6 +40,17 @@ public class UserInfo {
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "course_offered_id") })
     private List<CoursesOffered> coursesOffered =new ArrayList<>();
+
+    @Column(name = "Admin")
+    private boolean isAdmin;
+
+    public boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
 
     public List<CoursesOffered> getCoursesOffered() {
         return coursesOffered;

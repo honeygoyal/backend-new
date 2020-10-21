@@ -227,7 +227,7 @@ public class QuestionLayoutController {
             e.printStackTrace();
             return new ResponseEntity<String>("Failed ", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<String>("Done", HttpStatus.OK);
+        return new ResponseEntity<String>("{}", HttpStatus.OK);
     }
 
 
