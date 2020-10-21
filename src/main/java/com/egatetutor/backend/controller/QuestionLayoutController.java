@@ -3,8 +3,11 @@ package com.egatetutor.backend.controller;
 import com.egatetutor.backend.enumType.AttributeType;
 import com.egatetutor.backend.model.CoursesDescription;
 import com.egatetutor.backend.model.QuestionLayout;
+import com.egatetutor.backend.model.ReportDetail;
+import com.egatetutor.backend.model.responsemodel.QuestionLayoutResponse;
 import com.egatetutor.backend.repository.CoursesDescriptionRepository;
 import com.egatetutor.backend.repository.QuestionLayoutRepository;
+import com.egatetutor.backend.repository.ReportDetailRepository;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
@@ -14,6 +17,7 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xwpf.usermodel.*;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -47,12 +51,18 @@ public class QuestionLayoutController {
 
     @Autowired
     private CoursesDescriptionRepository coursesDescriptionRepository;
+
+    @Autowired
+    private ReportDetailRepository reportDetailRepository;
+
     @Autowired
     private Environment env;
 
 
     @GetMapping("/getQuestions")
-    public ResponseEntity<Map<String, List<QuestionLayout>>> getQuestionForTest(@RequestParam("courseId") String courseId) throws Exception {
+    public ResponseEntity<Map<String, List<QuestionLayoutResponse>>> getQuestionForTest(@RequestParam("courseId") String courseId,
+                                                                                        @RequestParam("userId") Long userId)
+            throws Exception {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         Optional<CoursesDescription> coursesDescription= coursesDescriptionRepository.findCoursesDescriptionByCourseId(courseId);
@@ -60,19 +70,25 @@ public class QuestionLayoutController {
             throw new Exception("courseId is not present. Please create test");
         }
         List<QuestionLayout> questionList = questionRepository.findQuestionsById(coursesDescription.get().getId());
-       // QuestionResponseModel[] returnvalue = new QuestionResponseModel[questionList.size()];
-        Map<String, List<QuestionLayout>> questionMap  = new HashMap<>();
+        List<QuestionLayoutResponse> questionLayoutResponseList = modelMapper.map(questionList, new TypeToken<List<QuestionLayoutResponse>>() {}.getType());
 
-        for (QuestionLayout questionLayout : questionList) {
+        Map<String, List<QuestionLayoutResponse>> questionMap  = new HashMap<>();
+        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, coursesDescription.get().getId());
+
+        for (QuestionLayoutResponse questionLayout : questionLayoutResponseList) {
             Path quePath = Paths.get(questionLayout.getQuestion() + ".png");
             Path solPath = Paths.get(questionLayout.getSolution() + ".png");
             byte[] imageque = Files.readAllBytes(quePath);
             byte[] imagesol = Files.readAllBytes(solPath);
             String encodedQuestion = Base64.getEncoder().encodeToString(imageque);
             String encodedSolution = Base64.getEncoder().encodeToString(imagesol);
-            List<QuestionLayout> tempList = new ArrayList<>();
+            List<QuestionLayoutResponse> tempList = new ArrayList<>();
             questionLayout.setQuestion(encodedQuestion);
             questionLayout.setSolution(encodedSolution);
+            if(reportDetailList!=null){
+                Optional<ReportDetail> reportDetail = reportDetailList.stream().filter(p->p.getQuestion_id().getId() == questionLayout.getId()).findFirst();
+                reportDetail.ifPresent(detail -> questionLayout.setAnswerSubmitted(detail.getAnswerSubmitted()));
+            }
             if (questionMap.containsKey(questionLayout.getSection())) {
                 tempList = questionMap.get(questionLayout.getSection());
                 tempList.add(questionLayout);
@@ -82,6 +98,7 @@ public class QuestionLayoutController {
                 questionMap.put(questionLayout.getSection(), tempList);
             }
         }
+
         return ResponseEntity.status(HttpStatus.OK).body(questionMap);
     }
 
