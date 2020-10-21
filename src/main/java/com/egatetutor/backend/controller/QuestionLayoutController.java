@@ -87,7 +87,11 @@ public class QuestionLayoutController {
             questionLayout.setSolution(encodedSolution);
             if(reportDetailList!=null){
                 Optional<ReportDetail> reportDetail = reportDetailList.stream().filter(p->p.getQuestion_id().getId() == questionLayout.getId()).findFirst();
-                reportDetail.ifPresent(detail -> questionLayout.setAnswerSubmitted(detail.getAnswerSubmitted()));
+                reportDetail.ifPresent(detail ->
+                {questionLayout.setAnswerSubmitted(detail.getAnswerSubmitted());
+                questionLayout.setQuestionStatus(detail.getQuestionStatus());}
+                );
+
             }
             if (questionMap.containsKey(questionLayout.getSection())) {
                 tempList = questionMap.get(questionLayout.getSection());

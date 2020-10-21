@@ -19,6 +19,7 @@ public class QuestionLayoutResponse {
     private String videoLink;
     private int questionLabel;
     private String answerSubmitted;
+    private String questionStatus;
     public long getId() {
         return id;
     }
@@ -121,5 +122,13 @@ public class QuestionLayoutResponse {
 
     public void setAnswerSubmitted(String answerSubmitted) {
         this.answerSubmitted = answerSubmitted;
+    }
+
+    public String getQuestionStatus() {
+        return questionStatus;
+    }
+
+    public void setQuestionStatus(String questionStatus) {
+        this.questionStatus = questionStatus;
     }
 }
