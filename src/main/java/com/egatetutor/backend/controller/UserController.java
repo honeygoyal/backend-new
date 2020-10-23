@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +98,7 @@ public class UserController {
 	@ApiOperation(value = "Make a POST request to upload the file",
 			produces = "text/plain", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@RequestMapping(value = "uploadProfileData", method = RequestMethod.POST)
-	public ResponseEntity<String> uploadProfileData(
+	public ResponseEntity<UserInfo> uploadProfileData(
 			@ApiParam(name = "files", value = "Select the file to Upload", required = true)
 			@RequestPart(value = "files", required = true) List<MultipartFile> files,
 			Long userId
@@ -106,6 +107,7 @@ public class UserController {
 		StringBuilder profileUrl = new StringBuilder();
 		StringBuilder signatureUrl = new StringBuilder();
 		StringBuilder govtIdUrl = new StringBuilder();
+        String photo ="", signature = "", govtId = "";
 		profileUrl.append(BASE_URL);
 		profileUrl.append("/profile_");
 		profileUrl.append(userId);
@@ -122,12 +124,15 @@ public class UserController {
 			switch (i){
 				case 0:
 					ImageIO.write(imag, "png", new File( profileUrl+".png"));
+					photo = Base64.getEncoder().encodeToString(pictureData);
 					break;
 				case 1:
 					ImageIO.write(imag, "png", new File( signatureUrl+".png"));
+                    signature = Base64.getEncoder().encodeToString(pictureData);
 					break;
 				case 2:
 					ImageIO.write(imag, "png", new File( govtIdUrl+".png"));
+                    govtId = Base64.getEncoder().encodeToString(pictureData);
 					break;
 			}
 		}
@@ -138,8 +143,13 @@ public class UserController {
 			user.setSignature(signatureUrl+".png");
 			user.setGovtId(govtIdUrl+".png");
 			userRepository.save(user);
+			user.setPhoto(photo);
+			user.setGovtId(govtId);
+			user.setSignature(signature);
+            return ResponseEntity.status(HttpStatus.OK).body(user);
 		}
-		return ResponseEntity.status(HttpStatus.OK).body("{}");
+
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
 	}
 
 
