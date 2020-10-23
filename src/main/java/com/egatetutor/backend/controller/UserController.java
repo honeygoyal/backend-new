@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -99,8 +100,9 @@ public class UserController {
 			produces = "text/plain", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	@RequestMapping(value = "uploadProfileData", method = RequestMethod.POST)
 	public ResponseEntity<UserInfo> uploadProfileData(
-			@ApiParam(name = "files", value = "Select the file to Upload", required = true)
-			@RequestPart(value = "files", required = true) List<MultipartFile> files,
+			@RequestPart(value = "profileFile", required = true) MultipartFile profileFile,
+			@RequestPart(value = "signatureFile", required = true) MultipartFile signatureFile,
+			@RequestPart(value = "govtIdFile", required = true) MultipartFile govtIdFile,
 			Long userId
 	) throws IOException {
 		String BASE_URL = env.getProperty("profile_base_url");
@@ -117,6 +119,10 @@ public class UserController {
 		govtIdUrl.append(BASE_URL);
 		govtIdUrl.append("/govtId_");
 		govtIdUrl.append(userId);
+		List<MultipartFile> files = new ArrayList<>();
+		files.add(profileFile);
+		files.add(signatureFile);
+		files.add(govtIdFile);
 		for (int i=0; i< files.size(); i++) {
 			MultipartFile file = files.get(i);
 			byte[] pictureData = file.getBytes();
