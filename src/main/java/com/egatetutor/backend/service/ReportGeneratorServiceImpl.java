@@ -35,7 +35,7 @@ public class ReportGeneratorServiceImpl implements ReportGeneratorService {
 
     @Override
     public List<QuestionAnalysis> getQuestionAnalysis(Long userId, Long courseId) throws Exception {
-        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, courseId); /*User Report detail list for all question of courseId*/
+        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailListByCompositeId(userId, courseId); /*User Report detail list for all question of courseId*/
         if (reportDetailList == null) {
             throw new Exception("QuestWise report is not yet generated");
         }

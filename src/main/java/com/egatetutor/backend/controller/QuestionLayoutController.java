@@ -70,7 +70,7 @@ public class QuestionLayoutController {
         List<QuestionLayoutResponse> questionLayoutResponseList = modelMapper.map(questionList, new TypeToken<List<QuestionLayoutResponse>>() {}.getType());
 
         Map<String, List<QuestionLayoutResponse>> questionMap  = new HashMap<>();
-        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailByCompositeId(userId, coursesDescription.get().getId());
+        List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailListByCompositeId(userId, coursesDescription.get().getId());
 
         for (QuestionLayoutResponse questionLayout : questionLayoutResponseList) {
             Path quePath = Paths.get(questionLayout.getQuestion() + ".png");

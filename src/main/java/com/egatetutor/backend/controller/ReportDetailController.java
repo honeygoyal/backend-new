@@ -54,7 +54,9 @@ public class ReportDetailController {
             throws Exception {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ReportDetail reportDetail = modelMapper.map(reportDetailRequest, ReportDetail.class);
+        Optional<ReportDetail> reportDetailOptional = reportDetailRepository.findReportDetailByCompositeId(reportDetailRequest.getUserId(), reportDetailRequest.getCourseId()
+        , reportDetailRequest.getQuestionId());
+
         Optional<UserInfo> user = userRepository.findById(reportDetailRequest.getUserId());
         Optional<CoursesDescription> coursesDescription = coursesDescriptionRepository.findById(reportDetailRequest.getCourseId());
         Optional<QuestionLayout> questionLayout = questionLayoutRepository.findById(reportDetailRequest.getQuestionId());
@@ -75,11 +77,30 @@ public class ReportDetailController {
             reportOverall.setCourseId(coursesDescription.get());
             reportOverall.setStatus(CoursesStatus.PENDING.name());
             reportOverall.setReportOverallPK(new ReportOverallPK(coursesDescription.get().getId(), user.get().getId()));
-            reportOverallRepository.save(reportOverall);
+            reportOverall.setTotalTime(reportDetailRequest.getTimeTaken());
+        }else{
+            String timeString = reportOverall.getTotalTime();
+            long prevTime = timeString.isEmpty() ? 0: Long.parseLong(timeString);
+            long currTime = reportDetailRequest.getTimeTaken().isEmpty() ? 0 : Long.parseLong(reportDetailRequest.getTimeTaken());
+            long totalTime = currTime + prevTime;
+            reportOverall.setTotalTime( totalTime+ "");
         }
-        reportDetail.setReportId(reportOverall);
-        reportDetail.setQuestion_id(questionLayout.get());
-        reportDetail.setReportDetailPK(new ReportDetailPK(reportOverall.getReportOverallPK(), questionLayout.get().getId()));
+        reportOverallRepository.save(reportOverall);
+        ReportDetail reportDetail;
+        if(reportDetailOptional.isPresent()){
+            reportDetail = reportDetailOptional.get();
+            reportDetail.setAnswerSubmitted(reportDetailRequest.getAnswerSubmitted());
+            reportDetail.setQuestionStatus(reportDetailRequest.getQuestionStatus());
+            long prevTimeTaken = reportDetail.getTimeTaken().isEmpty() ? 0: Long.parseLong(reportDetail.getTimeTaken());
+            long currTime = reportDetailRequest.getTimeTaken().isEmpty() ? 0 : Long.parseLong(reportDetailRequest.getTimeTaken());
+            long totalTime = currTime + prevTimeTaken;
+            reportDetail.setTimeTaken(totalTime + "");
+        }else{
+            reportDetail = modelMapper.map(reportDetailRequest, ReportDetail.class);
+            reportDetail.setReportId(reportOverall);
+            reportDetail.setQuestion_id(questionLayout.get());
+            reportDetail.setReportDetailPK(new ReportDetailPK(reportOverall.getReportOverallPK(), questionLayout.get().getId()));
+        }
         return ResponseEntity.status(HttpStatus.OK).body(reportDetailRepository.save(reportDetail));
     }
 
