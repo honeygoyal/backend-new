@@ -20,15 +20,12 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -164,7 +161,6 @@ public class QuestionLayoutController {
                                 case QUESTION_LABEL:
                                     question.setQuestionLabel(Integer.parseInt(typeString));
                                     String URL = BASE_URL + "/" + question.getCourseId().getCourseId() + "_" + question.getSection() + "_Question_" + question.getQuestionLabel();
-                                    /*TODO: Save Image*/
                                     for (XWPFParagraph p : table.getRow(i).getCell(1).getParagraphs()) {
                                         for (XWPFRun run : p.getRuns()) {
                                             for (XWPFPicture pic : run.getEmbeddedPictures()) {
@@ -183,7 +179,6 @@ public class QuestionLayoutController {
                                     break;
                                 case SOLUTION:
                                     String SURL = BASE_URL + "/" + question.getCourseId().getCourseId()  + "_" + question.getSection() + "_Solution_" + question.getQuestionLabel();
-                                    /*TODO: Save Image*/
                                     for (XWPFParagraph p : table.getRow(i).getCell(1).getParagraphs()) {
                                         for (XWPFRun run : p.getRuns()) {
                                             for (XWPFPicture pic : run.getEmbeddedPictures()) {

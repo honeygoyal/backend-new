@@ -1,5 +1,6 @@
 package com.egatetutor.backend.controller;
 
+import javax.imageio.ImageIO;
 import javax.validation.Valid;
 import com.egatetutor.backend.model.UserInfo;
 import com.egatetutor.backend.model.responsemodel.JwtRequest;
@@ -8,22 +9,36 @@ import com.egatetutor.backend.model.responsemodel.UserResponse;
 import com.egatetutor.backend.repository.UserRepository;
 import com.egatetutor.backend.service.UserService;
 import com.egatetutor.backend.util.JwtTokenUtil;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -37,6 +52,9 @@ public class UserController {
 	private AuthenticationManager authenticationManager;
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
+
+	@Autowired
+	private Environment env;
 
 	@PostMapping("/register")
 	public ResponseEntity createUser(@Valid @RequestBody UserInfo userdetails)
@@ -53,6 +71,7 @@ public class UserController {
 		UserResponse userResponse = modelMapper.map(createdUser, UserResponse.class);
 		return ResponseEntity.status(HttpStatus.OK).body(userResponse);
 	}
+
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
@@ -73,5 +92,55 @@ public class UserController {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
+
+	@PostMapping("/uploadProfileData")
+	@ApiOperation(value = "Make a POST request to upload the file",
+			produces = "text/plain", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	@RequestMapping(value = "uploadProfileData", method = RequestMethod.POST)
+	public ResponseEntity<String> uploadProfileData(
+			@ApiParam(name = "files", value = "Select the file to Upload", required = true)
+			@RequestPart(value = "files", required = true) List<MultipartFile> files,
+			Long userId
+	) throws IOException {
+		String BASE_URL = env.getProperty("profile_base_url");
+		StringBuilder profileUrl = new StringBuilder();
+		StringBuilder signatureUrl = new StringBuilder();
+		StringBuilder govtIdUrl = new StringBuilder();
+		profileUrl.append(BASE_URL);
+		profileUrl.append("/profile_");
+		profileUrl.append(userId);
+		signatureUrl.append(BASE_URL);
+		signatureUrl.append("/signature_");
+		signatureUrl.append(userId);
+		govtIdUrl.append(BASE_URL);
+		govtIdUrl.append("/govtId_");
+		govtIdUrl.append(userId);
+		for (int i=0; i< files.size(); i++) {
+			MultipartFile file = files.get(i);
+			byte[] pictureData = file.getBytes();
+			BufferedImage imag= ImageIO.read(new ByteArrayInputStream(pictureData));
+			switch (i){
+				case 0:
+					ImageIO.write(imag, "png", new File( profileUrl+".png"));
+					break;
+				case 1:
+					ImageIO.write(imag, "png", new File( signatureUrl+".png"));
+					break;
+				case 2:
+					ImageIO.write(imag, "png", new File( govtIdUrl+".png"));
+					break;
+			}
+		}
+		Optional<UserInfo> userInfo = userRepository.findById(userId);
+		if(userInfo.isPresent()){
+			UserInfo user = userInfo.get();
+			user.setPhoto(profileUrl+".png");
+			user.setSignature(signatureUrl+".png");
+			user.setGovtId(govtIdUrl+".png");
+			userRepository.save(user);
+		}
+		return ResponseEntity.status(HttpStatus.OK).body("{}");
+	}
+
 
 }
