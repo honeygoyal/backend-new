@@ -41,8 +41,14 @@ public class UserInfo {
             inverseJoinColumns = { @JoinColumn(name = "course_offered_id") })
     private List<CoursesOffered> coursesOffered =new ArrayList<>();
 
-    @Column(name = "Admin")
+    @Column(name = "admin")
     private boolean isAdmin;
+
+    @Column(name = "verified")
+    private boolean isVerified;
+
+    @Column(name = "comment")
+    private String comment;
 
     public boolean getIsAdmin() {
         return isAdmin;
@@ -162,5 +168,21 @@ public class UserInfo {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isVerified() {
+        return isVerified;
+    }
+
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
     }
 }

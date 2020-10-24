@@ -52,7 +52,7 @@ public class CoursesDescriptionController {
 		return ResponseEntity.status(HttpStatus.OK).body(courseIdList);
 	}
 	@PostMapping("/createTest")
-	public ResponseEntity<String> createTest(@Valid @RequestBody CoursesDescription coursesDescription) throws Exception
+	public ResponseEntity<String> createTest(@Valid @RequestBody CoursesDescription coursesDescription)
 	{
 		try {
 			coursesDescriptionService.createTest(coursesDescription);

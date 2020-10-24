@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +14,6 @@ public interface UserRepository extends CrudRepository<UserInfo, Long> {
 	@Query(value = "SELECT * FROM user_info U where U.email_id = ?1",nativeQuery = true)
 	UserInfo findByEmailId(String email);
 
+	@Query(value = "SELECT * FROM user_info U where U.verified = 0", nativeQuery = true)
+	List<UserInfo> findAllUnVerifiedUser();
 }
