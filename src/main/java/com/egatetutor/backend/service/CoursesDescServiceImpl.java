@@ -40,7 +40,6 @@ public class CoursesDescServiceImpl implements CoursesDescriptionService {
 			throw new Exception("User not found");
 		}
 	   List<Long> examIdList =  subscriptionRepository.findByUserId(userInfo.getId());  //User subscription exam list
-		if(examIdList == null){ throw new Exception("User doesn't subscribe to any package");}
 		Set<Long> examIdSet = new HashSet<>(examIdList);
 		List<CoursesDescription> testList = coursesDescriptionRepository.findCoursesDescriptionByExamId(examId);
     	List<CourseDescStatusResponse> testResponseArray = new ArrayList<>();
