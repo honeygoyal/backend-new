@@ -2,13 +2,21 @@ package com.egatetutor.backend.controller;
 
 import javax.imageio.ImageIO;
 import javax.validation.Valid;
+import javax.validation.constraints.Null;
 
 import com.egatetutor.backend.model.UserInfo;
-import com.egatetutor.backend.model.responsemodel.*;
+import com.egatetutor.backend.model.responsemodel.JwtRequest;
+import com.egatetutor.backend.model.responsemodel.JwtResponse;
+import com.egatetutor.backend.model.responsemodel.UserResponse;
 import com.egatetutor.backend.repository.UserRepository;
 import com.egatetutor.backend.service.UserService;
 import com.egatetutor.backend.util.JwtTokenUtil;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +28,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,13 +79,27 @@ public class UserController {
 
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
-	public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+	public ResponseEntity createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 		final UserDetails userDetails = userService.loadUserByUsername(authenticationRequest.getUsername());
 		UserInfo userEntity = userRepository.findByEmailId(userDetails.getUsername());
+
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		JwtResponse jwtResponse = new JwtResponse(token, userEntity);
-		return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+		if(  userEntity.getPhoto()!=null) {
+			Path profileImagepath = Paths.get(userEntity.getPhoto());
+//		Path solPath = Paths.get(questionLayout.getSolution() + ".png");
+			byte[] profileImage = Files.readAllBytes(profileImagepath);
+//		byte[] imagesol = Files.readAllBytes(solPath);
+			String encodedProfilePhoto = Base64.getEncoder().encodeToString(profileImage);
+//		String encodedSolution = Base64.getEncoder().encodeToString(imagesol);
+			userEntity.setPhoto(encodedProfilePhoto);
+			JwtResponse jwtResponse = new JwtResponse(token, userEntity);
+			return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+		}else{
+			JwtResponse jwtResponse = new JwtResponse(token, userEntity);
+			return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
+		}
+
 	}
 
 	private void authenticate(String username, String password) throws Exception {
@@ -160,18 +183,19 @@ public class UserController {
 		if(userInfo.isPresent() && userInfo.get().getIsAdmin()){
 			List<UserInfo> userInfoList = userRepository.findAllUnVerifiedUser();
 			for(UserInfo user: userInfoList){
-				Path photoPath = Paths.get(user.getPhoto());
-				Path signaturePath = Paths.get(user.getSignature());
-				Path govtIdPath = Paths.get(user.getGovtId());
+
 				String profileString = "", signatureString = "", govtIdString = "";
 				try{
+					Path photoPath = Paths.get(user.getPhoto());
+					Path signaturePath = Paths.get(user.getSignature());
+					Path govtIdPath = Paths.get(user.getGovtId());
 				byte[] profileImage = Files.readAllBytes(photoPath);
 				profileString = Base64.getEncoder().encodeToString(profileImage);
 				byte[] signatureImage = Files.readAllBytes(signaturePath);
 				signatureString = Base64.getEncoder().encodeToString(signatureImage);
 				byte[] govtIdImage = Files.readAllBytes(govtIdPath);
 				govtIdString = Base64.getEncoder().encodeToString(govtIdImage);
-				}catch (IOException exception){
+				}catch (   Exception ex){
 					System.out.println("File not present");
 				}
 				user.setPhoto(profileString);
