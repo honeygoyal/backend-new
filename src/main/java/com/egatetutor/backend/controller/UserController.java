@@ -85,14 +85,15 @@ public class UserController {
 		UserInfo userEntity = userRepository.findByEmailId(userDetails.getUsername());
 
 		final String token = jwtTokenUtil.generateToken(userDetails);
-		if(  userEntity.getPhoto()!=null) {
+		if(  userEntity.getPhoto()!=null || userEntity.getPhoto().isEmpty() ) {
+			try{
 			Path profileImagepath = Paths.get(userEntity.getPhoto());
-//		Path solPath = Paths.get(questionLayout.getSolution() + ".png");
 			byte[] profileImage = Files.readAllBytes(profileImagepath);
-//		byte[] imagesol = Files.readAllBytes(solPath);
 			String encodedProfilePhoto = Base64.getEncoder().encodeToString(profileImage);
-//		String encodedSolution = Base64.getEncoder().encodeToString(imagesol);
 			userEntity.setPhoto(encodedProfilePhoto);
+			}catch (Exception exception){
+				System.out.println("Path is not correct");
+			}
 			JwtResponse jwtResponse = new JwtResponse(token, userEntity);
 			return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
 		}else{
