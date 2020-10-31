@@ -943,4 +943,77 @@ VALUES
 (
 '135', 'iPATE', 'COMPLETE PACKAGE', '8999', 'IN', 'IN-iPATE-CP'
 );
+/* INSERT QUERY NO: 136 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'136', 'GATE', 'DEMO TEST SERIES', '0', 'ALL', 'DEMO-GATE-OTS'
+);
+/* INSERT QUERY NO: 137 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'137', 'GATE', 'DEMO VIDEO LECTURES', '0', 'ALL', 'DEMO-GATE-VL'
+);
+/* INSERT QUERY NO: 138 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'138', 'GATE', 'DEMO QUESTION BANK', '0', 'ALL', 'DEMO-GATE-QB'
+);
+/* INSERT QUERY NO: 139 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'139', 'GATE', 'DEMO eSTUDY MATERIAL', '0', 'ALL', 'DEMO-GATE-ESM'
+);
+/* INSERT QUERY NO: 140 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'140', 'iPATE', 'DEMO TEST SERIES', '0', 'ALL', 'DEMO-iPATE-OTS'
+);
+/* INSERT QUERY NO: 141 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'141', 'iPATE', 'DEMO VIDEO LECTURES', '0', 'ALL', 'DEMO-iPATE-VL'
+);
+/* INSERT QUERY NO: 142 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'142', 'iPATE', 'DEMO QUESTION BANK', '0', 'ALL', 'DEMO-iPATE-QB'
+);
+/* INSERT QUERY NO: 143 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'143', 'iPATE', 'DEMO eSTUDY MATERIAL', '0', 'ALL', 'DEMO-iPATE-ESM'
+);
+/* INSERT QUERY NO: 144 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'144', 'PSU', 'DEMO TEST SERIES', '0', 'ALL', 'DEMO-PSU-OTS'
+);
+/* INSERT QUERY NO: 145 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'145', 'PSU', 'DEMO VIDEO LECTURES', '0', 'ALL', 'DEMO-PSU-VL'
+);
+/* INSERT QUERY NO: 146 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'146', 'PSU', 'DEMO QUESTION BANK', '0', 'ALL', 'DEMO-PSU-QB'
+);
+/* INSERT QUERY NO: 147 */
+INSERT INTO courses_offered( id,exam_name, exam_name_service, price, branch, exam_id)
+VALUES
+(
+'147', 'PSU', 'DEMO eSTUDY MATERIAL', '0', 'ALL', 'DEMO-PSU-ESM'
+);
+
 

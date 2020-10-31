@@ -27,7 +27,7 @@ public class SwaggerConfig {
 
     private Predicate<String> postPaths() {
         return or(regex("/coursesDetail.*"),
-                regex("/users.*"),
+                regex("/users.*"), regex("/payment.*"),
                 regex("/questionLayout.*"),
                 regex("/coursesOffered.*"),
                 regex("/subscriptionDetail.*"),
