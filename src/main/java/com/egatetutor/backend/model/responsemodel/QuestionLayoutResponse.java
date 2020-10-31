@@ -20,6 +20,7 @@ public class QuestionLayoutResponse {
     private int questionLabel;
     private String answerSubmitted;
     private String questionStatus;
+    private String timeTaken;
     public long getId() {
         return id;
     }
@@ -131,4 +132,13 @@ public class QuestionLayoutResponse {
     public void setQuestionStatus(String questionStatus) {
         this.questionStatus = questionStatus;
     }
+
+    public String getTimeTaken() {
+        return timeTaken;
+    }
+
+    public void setTimeTaken(String timeTaken) {
+        this.timeTaken = timeTaken;
+    }
 }
+

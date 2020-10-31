@@ -86,7 +86,9 @@ public class QuestionLayoutController {
                 Optional<ReportDetail> reportDetail = reportDetailList.stream().filter(p->p.getQuestion_id().getId() == questionLayout.getId()).findFirst();
                 reportDetail.ifPresent(detail ->
                 {questionLayout.setAnswerSubmitted(detail.getAnswerSubmitted());
-                questionLayout.setQuestionStatus(detail.getQuestionStatus());}
+                questionLayout.setQuestionStatus(detail.getQuestionStatus());
+                questionLayout.setTimeTaken(detail.getTimeTaken());
+                }
                 );
 
             }
