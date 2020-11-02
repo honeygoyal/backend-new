@@ -1,5 +1,8 @@
 package com.egatetutor.backend.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.*;
+import com.amazonaws.util.IOUtils;
 import com.egatetutor.backend.enumType.AttributeType;
 import com.egatetutor.backend.model.CoursesDescription;
 import com.egatetutor.backend.model.QuestionLayout;
@@ -20,6 +23,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -31,6 +35,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +60,11 @@ public class QuestionLayoutController {
     @Autowired
     private Environment env;
 
+    @Autowired
+    private AmazonS3 s3client;
+
+    @Value("${jsa.s3.bucket}")
+    private String bucketName;
 
     @GetMapping("/getQuestions")
     public ResponseEntity<Map<String, List<QuestionLayoutResponse>>> getQuestionForTest(@RequestParam("courseId") String courseId,
@@ -73,10 +83,10 @@ public class QuestionLayoutController {
         List<ReportDetail> reportDetailList = reportDetailRepository.findReportDetailListByCompositeId(userId, coursesDescription.get().getId());
 
         for (QuestionLayoutResponse questionLayout : questionLayoutResponseList) {
-            Path quePath = Paths.get(questionLayout.getQuestion() + ".png");
-            Path solPath = Paths.get(questionLayout.getSolution() + ".png");
-            byte[] imageque = Files.readAllBytes(quePath);
-            byte[] imagesol = Files.readAllBytes(solPath);
+            S3Object questObject = s3client.getObject(new GetObjectRequest(bucketName, questionLayout.getQuestion()));
+            S3Object solObject = s3client.getObject(new GetObjectRequest(bucketName, questionLayout.getSolution()));
+            byte[] imageque =   IOUtils.toByteArray(questObject.getObjectContent());  //Files.readAllBytes(quePath);
+            byte[] imagesol = IOUtils.toByteArray(solObject.getObjectContent()); // Files.readAllBytes(solPath);
             String encodedQuestion = Base64.getEncoder().encodeToString(imageque);
             String encodedSolution = Base64.getEncoder().encodeToString(imagesol);
             List<QuestionLayoutResponse> tempList = new ArrayList<>();
@@ -88,9 +98,7 @@ public class QuestionLayoutController {
                 {questionLayout.setAnswerSubmitted(detail.getAnswerSubmitted());
                 questionLayout.setQuestionStatus(detail.getQuestionStatus());
                 questionLayout.setTimeTaken(detail.getTimeTaken());
-                }
-                );
-
+                });
             }
             if (questionMap.containsKey(questionLayout.getSection())) {
                 tempList = questionMap.get(questionLayout.getSection());
@@ -119,7 +127,6 @@ public class QuestionLayoutController {
             @RequestPart("file") MultipartFile file,
             String courseId
     )  {
-
         try{
             File testFile = new File("test");
             FileUtils.writeByteArrayToFile(testFile, file.getBytes());
@@ -162,38 +169,45 @@ public class QuestionLayoutController {
                                     break;
                                 case QUESTION_LABEL:
                                     question.setQuestionLabel(Integer.parseInt(typeString));
-                                    String URL = BASE_URL + "/" + question.getCourseId().getCourseId() + "_" + question.getSection() + "_Question_" + question.getQuestionLabel();
+                                    String fileName = BASE_URL+question.getCourseId().getCourseId() + "_" + question.getSection() + "_Question_" + question.getQuestionLabel();
                                     for (XWPFParagraph p : table.getRow(i).getCell(1).getParagraphs()) {
                                         for (XWPFRun run : p.getRuns()) {
                                             for (XWPFPicture pic : run.getEmbeddedPictures()) {
                                                 byte[] pictureData = pic.getPictureData().getData();
-                                               // URL = URL+ count[c];
-                                                BufferedImage imag=ImageIO.read(new ByteArrayInputStream(pictureData));
-                                                ImageIO.write(imag, "png", new File(URL +".png"));
+                                                InputStream stream = new ByteArrayInputStream(pictureData);
+                                                ObjectMetadata meta = new ObjectMetadata();
+                                                meta.setContentLength(pictureData.length);
+                                                meta.setContentType("image/png");
+                                                s3client.putObject(new PutObjectRequest(
+                                                        bucketName, fileName, stream, meta)
+                                                        .withCannedAcl(CannedAccessControlList.Private));
+                                                stream.close();
                                             }
                                         }
-
                                     }
-                                    question.setQuestion(URL);
+                                    question.setQuestion(fileName);
                                     break;
                                 case ANSWER:
                                     question.setAnswer(actualText);
                                     break;
                                 case SOLUTION:
-                                    String SURL = BASE_URL + "/" + question.getCourseId().getCourseId()  + "_" + question.getSection() + "_Solution_" + question.getQuestionLabel();
+                                    String sFilename = BASE_URL+ question.getCourseId().getCourseId()  + "_" + question.getSection() + "_Solution_" + question.getQuestionLabel();
                                     for (XWPFParagraph p : table.getRow(i).getCell(1).getParagraphs()) {
                                         for (XWPFRun run : p.getRuns()) {
                                             for (XWPFPicture pic : run.getEmbeddedPictures()) {
                                                 byte[] pictureData = pic.getPictureData().getData();
-                                                BufferedImage imag=ImageIO.read(new ByteArrayInputStream(pictureData));
-                                                ImageIO.write(imag, "png", new File(SURL +".png"));
-                                               // break;
-                                                //c++;
+                                                InputStream stream = new ByteArrayInputStream(pictureData);
+                                                ObjectMetadata meta = new ObjectMetadata();
+                                                meta.setContentLength(pictureData.length);
+                                                meta.setContentType("image/png");
+                                                s3client.putObject(new PutObjectRequest(
+                                                        bucketName, sFilename, stream, meta)
+                                                        .withCannedAcl(CannedAccessControlList.Private));
+                                                stream.close();
                                             }
                                         }
-
                                     }
-                                    question.setSolution(SURL);
+                                    question.setSolution(sFilename);
                                     break;
                                 case DIFFICULTY:
                                     question.setQuestionDifficulty(actualText);

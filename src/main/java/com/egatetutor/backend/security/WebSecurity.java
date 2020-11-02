@@ -46,18 +46,11 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable();
 		http.headers().frameOptions().disable();
-//		http.authorizeRequests().antMatchers("/users/**").permitAll()
-//		.anyRequest().authenticated()
-//		.and().
-//		exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-//		.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		http.ignoring().antMatchers("/v2/api-docs",
-//				"/configuration/ui",
-//				"/swagger-resources/**",
-//				"/configuration/security",
-//				"/swagger-ui.html",
-//				"/webjars/**");
-		// Add a filter to validate the tokens with every request
+		http.authorizeRequests().antMatchers("/users/**").permitAll()
+		.anyRequest().authenticated()
+		.and().
+		exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+		.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(jwtRequestFilter,  UsernamePasswordAuthenticationFilter.class);
 		
 	}
