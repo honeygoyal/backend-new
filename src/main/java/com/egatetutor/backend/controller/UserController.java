@@ -131,13 +131,13 @@ public class UserController {
         StringBuilder govtIdUrl = new StringBuilder();
         String photo = "", signature = "", govtId = "";
         profileUrl.append(BASE_URL);
-        profileUrl.append("/profile_");
+        profileUrl.append("profile_");
         profileUrl.append(userId);
         signatureUrl.append(BASE_URL);
-        signatureUrl.append("/signature_");
+        signatureUrl.append("signature_");
         signatureUrl.append(userId);
         govtIdUrl.append(BASE_URL);
-        govtIdUrl.append("/govtId_");
+        govtIdUrl.append("govtId_");
         govtIdUrl.append(userId);
         List<MultipartFile> files = new ArrayList<>();
         files.add(profileFile);
@@ -177,9 +177,9 @@ public class UserController {
         Optional<UserInfo> userInfo = userRepository.findById(userId);
         if (userInfo.isPresent()) {
             UserInfo user = userInfo.get();
-            user.setPhoto(profileUrl + ".png");
-            user.setSignature(signatureUrl + ".png");
-            user.setGovtId(govtIdUrl + ".png");
+            user.setPhoto(profileUrl.toString());
+            user.setSignature(signatureUrl.toString());
+            user.setGovtId(govtIdUrl.toString());
             userRepository.save(user);
             user.setPhoto(photo);
             user.setGovtId(govtId);
