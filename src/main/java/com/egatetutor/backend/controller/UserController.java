@@ -89,7 +89,9 @@ public class UserController {
         UserInfo userEntity = userRepository.findByEmailId(userDetails.getUsername());
 
         final String token = jwtTokenUtil.generateToken(userDetails);
-        if (userEntity.getPhoto() != null || !userEntity.getPhoto().isEmpty()) {
+        System.out.println("Token: "+ token);
+        System.out.println("User Entity: "+ userEntity);
+        if (userEntity != null && userEntity.getPhoto() != null && !userEntity.getPhoto().isEmpty()) {
             try {
                 S3Object profileObj = s3client.getObject(new GetObjectRequest(bucketName, userEntity.getPhoto()));
                 byte[] profileImage = IOUtils.toByteArray(profileObj.getObjectContent()); //Files.readAllBytes(profileImagepath);
@@ -98,13 +100,9 @@ public class UserController {
             } catch (Exception exception) {
                 System.out.println("Path is not correct");
             }
-            JwtResponse jwtResponse = new JwtResponse(token, userEntity);
-            return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
-        } else {
-            JwtResponse jwtResponse = new JwtResponse(token, userEntity);
-            return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
         }
-
+            JwtResponse jwtResponse = new JwtResponse(token, userEntity);
+            return ResponseEntity.status(HttpStatus.OK).body(jwtResponse);
     }
 
     private void authenticate(String username, String password) throws Exception {
