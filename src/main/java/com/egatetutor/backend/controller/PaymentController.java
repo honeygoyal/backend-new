@@ -65,7 +65,11 @@ public class PaymentController {
             orderRequest.put("receipt", createOrder.getReceipt());
             orderRequest.put("payment_capture", 1);
             Order order =  razorpay.Orders.create(orderRequest);
-            return ResponseEntity.status(HttpStatus.OK).body(order.get("id"));
+
+            String result= order.get("id");//"{orderId:"+order.get("id")+"}";
+            orderRequest.put("orderId",result);
+            return ResponseEntity.status(HttpStatus.OK).body(orderRequest.toString());
+
     }
 
     @PostMapping("/verifiedPayment")
